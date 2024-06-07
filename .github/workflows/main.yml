@@ -1,0 +1,36 @@
+name: Deploy_On_Clever
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: install clever-tools
+        run: npm install -g clever-tools
+        
+      - name: Create and deploy app
+        env:
+          CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+          CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
+          ORGA_ID: ${{ secrets.ORGA_ID }}
+        run: | 
+          clever create --type node Strapi_Github --alias Strapi_Github --region par --org "${{ secrets.ORGA_ID }}"
+          
+          clever env set ADMIN_JWT_SECRET "f7ee0868093dffe3fa5d45b62772419a4b0f833f82a4ab428be7ad037e40fec4"
+          clever env set API_TOKEN_SALT "f8641903db29c6154853972f1118eb7fec2e58b501ea2961f9326629fec2f215"
+          clever env set APP_KEYS "61cc13a54a768a22424cb09c458aaf66528d9fdb9787db98d728df85ad0fa9d4,0b4793270294e242b9f10f19eccbc9def007cb4b0804d3485c22164f258a6e9a,edde515510ef7ce2cc018772c6279491680f82d1b22b9bf92b46f34f426ec8ad,c0f508a1a18196fb16ec125bd79d648026db7217ebf0a20bd2fc26865d3288e6"
+          clever env set CC_NODE_BUILD_TOOL "yarn"
+          clever env set CELLAR_ADDON_REGION "fr-par"
+          clever env set CELLAR_BUCKET "<your-bucket-name>"
+          clever env set DATABASE_CLIENT "postgres"
+          clever env set HOST "0.0.0.0"
+          clever env set JWT_SECRET "2a75ff48e753435d64a3b2c3eeb9e911c557aa41e43a437107af750ba0d56c09"
+          clever env set NODE_ENV "production"
+          clever env set TRANSFER_TOKEN_SALT "8bdb891d559b70a185cac6f43fa18a0962d5e1d302de715ba8169d8b993a06d9"
+
+          clever deploy
